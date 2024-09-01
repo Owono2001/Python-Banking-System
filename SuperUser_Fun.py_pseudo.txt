@@ -1,0 +1,80 @@
+# Super User Creating Function FOR creating Staff
+
+DEFINE Su_Creat_user():
+
+    # Validation FOR Input
+
+    WHILE True:
+
+        First_name  INPUT("Enter First Name : ")
+
+        IF First_name == '':
+
+            DISPLAY("Mandatory Field ")
+
+            continue
+
+        ELSE:
+
+            break
+
+    # Validation FOR Input
+
+    WHILE True:
+
+        Last_name  INPUT("Enter Last Name : ")
+
+        IF Last_name == '':
+
+            DISPLAY("Mandatory Field ")
+
+            continue
+
+        ELSE:
+
+            break
+
+    # Validation FOR Input
+
+    WHILE True:
+
+        Username  INPUT("Enter Username : ")
+
+        IF Username == '':
+
+            DISPLAY("Mandatory Field ")
+
+            continue
+
+        ELSE:
+
+            break
+
+    # Validation FOR Input
+
+    WHILE True:
+
+        Password  INPUT("Enter Password : ")
+
+        IF Password == '':
+
+            DISPLAY("Mandatory Field ")
+
+            continue
+
+        ELSE:
+
+            break
+
+    # Adding Details to admin_staff_details.txt File
+
+    admin_staff  open("admin_staff_details", 'a')
+
+    admin_staff.write(First_name + ' ' + Last_name + ' ' + Username + ' ' + Password+'\n')
+
+    admin_staff.close()
+
+    DISPLAY("Added Successfully:")
+
+    DISPLAY("You are already a member of PEDRO Bank administration Staff")
+

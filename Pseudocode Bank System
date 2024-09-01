@@ -1,0 +1,469 @@
+# Pedro Fabian Owono Ondo Mangue
+#TP063251
+
+DEFINE SU_Select AS FUNCTION
+BEGIN
+	PRINT '1. Create user'
+	INPUT Get user
+	PRINT '2. Login'
+	INPUT login
+	IF entry == 1
+	callfunctionSuperUser()
+	ELIF ENTRY == 2
+		break
+	ELSE
+		PRINT 'invalid entry'
+	ENDIF
+
+		IF name = main:
+			PRINT 'WELCOME TO THE BANK'
+			print(LOGIN/tab)
+		username IS EQUAL TO enter username AS ACCOUNT NUMBER
+		password IS EQUAL TO enter password
+		callloginfunction(username,password)
+		ENDIF
+END
+ENDFUNCTION
+
+DEFINE login AS FUNCTION WITH PARAMETER username and password
+BEGIN
+		IF username IS EQUAL TO admin AS STRING and password IS EQUAL TO admin1234 AS STRING
+			PRINT 'super user logged in: '
+			INPUT super user
+			callfunctionSu_Select()
+		else:
+			staff username and staff password IS EQUAL TO calling FUNCTION Staff fun
+			customer account and customer password IS EQUAL TO calling FUNCTION customer login details
+			stored username IS EQUAL TO staff username
+			stored password IS EQUAL TO staff password
+			stored username IS EQUAL TO customer username
+			stored password IS EQUAL TO customer password
+			staff flage = false
+			customer flage = false
+		ENDIF
+			FOR data in staff username:
+				IF username == staff username data and password == staff password data
+				stored username = staff username data
+				stored password = staff password data
+				staff flage is True
+				break
+			ENDFOR
+
+			FOR Data in customer account number
+				IF username == customer account number data and password == customer password data
+				customer stored username = customer account nunmber data
+				customer stored password = customer password data
+				customer flage is True
+				break
+			ENDFOR
+
+			IF stored username and staff flage:
+				PRINT 'loged is as stored username as string'
+				callfunctionMenuStaff_fun()
+			ELIF customer stored username and customer flage:
+				PRINT 'loged in as customer stored username'
+				callfunctionMenuCustomer_fun()
+			else:
+				PRINT 'user doesn't exist'
+			ENDIF
+END
+ENDFUNCTION
+
+
+
+
+
+
+
+
+
+
+
+Customer_fun.py Python file
+
+
+
+FUNCTION Customer login details
+BEGIN
+	open 'customer_details.txt' AS fileHandler in READ MODE
+	convert account no into a list AS ARRAY
+	convert password into a list AS ARRAY
+	if line is equal to open 'customer.details.txt' AS filehandler in READLINE MODE
+		print 'read the line shown in the file'
+	else
+		break
+	ENDIF
+	append the new data (STRIP AND SPLIT(' ')4) into account number
+	append the new data (STRIP AND SPLIT(' ')5) into password
+	CLOSE filehandler
+	return account no and password
+END
+END FUNCTION
+
+
+
+DEFINE Customer_menu AS FUNCTION WITH PARAMETER AS account no
+BEGIN
+		print 'Enter the menu'
+		INPUT menu
+		PRINT '1.Enter for changing password'
+		INPUT changing password
+		PRINT '2.Enter the deposit'
+		INPUT deposit
+		PRINT '3.Enter the withdrawals'
+		INPUT withdrawal
+		print '4.Enter the balance'
+		INPUT the balance
+		print '5.Enter the report'
+		INPUT the report
+		print '6.Login'
+		INPUT login
+		input select your choice from 1 to 6
+		IF select == 1
+			callfunctionPassword(accound no)
+		ELIF select == 2
+			callfunctionDeposit(accound no)
+		ELIF select == 3
+			callfunctionWithdrawal(accound no)
+		ELIF select ==4
+			callfunctionBalance(accound no)
+		ELIF select ==5
+			callfunctionReport(accound no)
+		ELIF select ==6
+			PRINT 'login'
+			break
+		ELSE
+			PRINT 'invalid input select'
+		ENDIF
+END
+END FUNCTION
+
+DEFINE change password AS FUNCTION WITH PARAMETER AS accound no
+	current password = input enter current password
+	new password = new password
+	confirm new password = confirm new password
+	open 'customer_details.txt' AS fileHandler in READ MODE
+	while True:
+		line = open 'customer.details.txt' AS filehandler in READLINE MODE
+		if not line:
+			break
+		open 'customer_details.txt' AS fileHandler in APPEND mode
+			if current password == customer details and new password == confirm new password
+				print(You can edit customer details)
+			ENDIF
+
+		ENDIF
+	ENDWHILE
+
+	FOR x in customer details:
+		Edit customer details = Edit customer details + x + ' '
+		updated customer details = customer details + data updated + a new password)
+		CLOSE fileHandler
+	ENDFOR
+
+	open 'customer_details.txt AS fileHandler in inplace backup mode:
+		FOR lineData in fileHandler:
+			if Edit customer details.strip as string == lineData.strip as string
+				print(the data of customer details will be updated, end)
+			else
+				print(end of the lineData)
+				print(password changed)
+			ENDIF
+		ENDFOR
+ENDFUNCTION
+
+DEFINE DEPOSIT AS FUNCTION WITH PARAMETER AS accound no
+BEGIN
+		date = datetime date today
+		deposit = input Enter amount
+		withdrawal is equal to zero
+		open 'accounts.txt' AS fileHandler in append MODE
+		open 'accounts.txt' AS fileHandler in write MODE
+		CLOSE fileHandler
+END
+ENDFUNCTION
+
+DEFINE withdrawals AS FUNCTION WITH PARAMETER AS accound no
+BEGIN
+date = datetime date today
+	deposit = '0'
+	withdrawal = Enter amount you want to withdraw
+	total balance = balance(accound no)
+	customer details IS EQUAL TO open 'customer_details.txt' AS fileHandler in READ MODE
+	IF line IS EQUAL TO 'customer_details.txt' AS fileHandler in readline mode
+		print 'read the first line in the file'
+	ELSE
+		break
+	ENDIF
+	line in strip and split(' ')4) = account no
+	customer details IS EQUAL TO lines in strip and split('')
+		IF customer details[3] == 1 AS STRING
+			PRINT 'savings or current'
+			IF total balance - withdrawal as integer >= 100:
+				open 'accounts.txt' AS fileHandler in append MODE
+				open 'accounts.txt' AS fileHandler in write MODE
+				PRINT 'transaction succesfully'
+				CLOSE fileHandler
+
+			ELSE
+				PRINT 'transaction Error: Minimum balance'
+			ENDIF
+
+		ELIF Customer details[3] == 2 AS STRING
+			if total balance minus withdrawal as integer >=500
+				open 'accounts.txt' AS fileHandler in append MODE
+				open 'accounts.txt' AS fileHandler in write MODE
+				PRINT 'transaction succesfuly'
+				CLOSE fileHandler
+
+			ELSE
+				PRINT 'Transaction Error : Minimum balance'
+			ENDIF
+
+		ELSE
+			pass
+		ENDIF
+
+END
+ENDFUNCTION
+
+DEFINE balance AS A FUNCTION WITH PARAMETER AS accound no
+	total balance = '0'
+	accounts IS EQUAL TO open 'accounts.txt' AS fileHandler in READ MODE
+	IF line IS EQUAL TO 'accounts.txt' AS fileHandler in READLINE MODE
+		PRINT 'read that line in the file'
+	if not line:
+		break
+	ENDIF
+		IF line in STRIP AND SPLIT(' ')0) == accound no
+			total balance = total balance + line AS fileHandler in strip and split as integer
+			total balance = total balance - line AS fileHandler in strip and split as integer
+		ELSE
+			PRINT 'Balance inexistent'
+		ENDIF
+		return total balance
+END
+ENDFUNCTION
+
+DEFINE report AS FUNCTION WITH PARAMETER AS accound no
+BEGIN
+	IF start date is equal to enter start date ('%Y-%m-%d')
+		PRINT 'getting the start date of the report following the format of the date'
+	ELIF end date IS EQUAL TO enter the end date ('%Y-%m-%d')
+		PRINT 'getting the end date of the report'
+	ENDIF
+	accounts IS EQUAL TO open 'accounts.txt' AS fileHandler in READ MODE
+	CONVERT report into a list AS ARRAY
+		IF line IS EQUAL TO open 'accounts.txt' AS fileHandler in READLINES MODE
+			PRINT 'read in that line in the file'
+		ELSE
+			break
+		ENDIF
+		line AS fileHandler in strip and split(0) == accound no
+			IF start_date <= datetime datetime <= end_date:
+				PRINT 'report'
+			open 'accounts.txt' AS fileHandler in append MODE
+				index = 1
+				PRINT('accound no' + accound no)
+				PRINT(SLNO + Date + Deposit + Withdrawals)
+			ENDIF
+END
+ENDFUNCTION
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			  Staff_fun.py Python file
+
+import datetime
+
+
+FUNCTION staff details:
+		 open 'admin_staff_details.txt' as fileHandler in READ MODE
+		 username = []
+		 password = []
+		if line = open 'admin_staff_details as fileHandler in READLINE MODE
+		else
+			break
+		ENDIF
+		CLOSE fileHandler
+		return username, password
+
+ENDFUNCTION
+
+
+
+FUNCTION staff menu:
+		while 1:
+			print(Enter the Menu)
+			Get the menu
+			print(1. Add a new customer)
+			Get new customer
+			print(2.Edit customer)
+			Get edit customer
+			print(3. Enter a report)
+			Get a report
+			print(4.Login)
+			Get login
+			input select one option from 1 to 4:
+			if select = 1
+				callfunctionAddCustomer()
+			elif select = 2
+				callfunctionEditCustomer()
+			elif select = 3
+				callfunctionStaffReport
+			elif select = 4 break
+				invalid select
+			ENDIF
+		ENDWHILE
+
+
+FUNCTION add customer:
+		try:
+			customer ID = ' '
+			open 'customer_details.txt' as fileHandler in READ MODE
+			lines = open fileHandler.splitlines in READ MODE
+			last lines [-1]
+			customer_ID = last lines.strip.split as integer
+		except:
+			customer_ID = 1
+			while True:
+				if name is equal to enter name
+					print(please enter a name)
+				ENDIF
+			ENDWHILE
+			while True:
+				if date of birth is equal to enter a date of birth
+					print(please enter a date of birth)
+			while True:
+				if account type is equal to enter either savings or current
+					print(please choose the type of account)
+				ENDIF
+			ENDWHILE
+			while True:
+				if user password is equal to enter password
+					print(please enter password)
+				ENDIF
+			ENDWHILE
+		try:
+			open 'customer_details.txt as fileHandler in READ MODE
+			lines = open fileHandler.splitlines in READ MODE
+			last lines = [-1]
+			customer_ID = last lines.strip.split as integer
+			account no = 05628 as string
+		except:
+			account number = 0562800001 as string
+			open 'customer_details.txt as fileHandler in append MODE
+			open 'customer_details.txt as fileHandler in WRITE MODE
+			CLOSE fileHandler
+			print(added succesfully)
+			print('your account number:' +account no as string)
+			print('your password:' + user password as string)
+
+FUNCTION edit customer
+		open 'customer_details.txt as fileHandler in READ MODE
+		define customer list as ARRAY
+		while True:
+			if line is equal to 'customer_details.txt as fileHandler in READLINE MODE
+			print(line)
+			if not line break
+			ENDIF
+		ENDWHILE
+		index = 1
+		if customer list = ![]
+			print(SLNO + Customer ID + Name + Date of birth + Account type + Account number + Password)
+		ENDIF
+			for data in customer list:
+				print(index1+index2+index3+index4+index5+index6+index7)
+				index= index+1
+			entered is equal to enter the SLNO want to edit
+			ENDFOR
+			if entered is equal to q as string
+				return none
+			ENDIF
+			edit customer = customer list as integer - 1
+			edit customer str = ' '
+			for x in edit customer
+				edit customer = edit customer str + x + ' '
+			ENDFOR
+			print('current date of birth' + edit customer)
+			Get new date of birth
+			print('current account type' + edit customer)
+			Get new account type
+			print('current password' + edit customer)
+			Get new password
+			updated customer details = new date of birth + new account type + new password
+			print(updated customer details)
+			CLOSE fileHandler
+		try:
+			filename = 'customer details.txt'
+			inplace filename = True and backup = back as filename
+				for line in filename:
+					if edit customer str.strip == line.strip as integer
+						print(updated customer details)
+					else:
+						print(line)
+					ENDIF
+				ENDFOR
+		except Exception as error
+		else:
+			print(no customer added)
+
+FUNCTION staff report:
+		account number = input enter account number
+		while True:
+			try:
+				start date is equal to datetime
+			except Exception as error
+			break
+		ENDWHILE
+		open 'accounts.txt' as fileHandler in READ MODE
+		define report as ARRAY
+		while True:
+			line is equal to 'account.txt' as fileHandler in READLINE MODE
+			if not line break
+				print(error)
+				index = 1
+				print('account number' + account no)
+				print(SLNO + Date + Deposit + Withdrawals)
+				for data in report:
+					print(index1+ index2+ index3+ index4)
+					index = index + 1
+				ENDFOR
+			ENDIF
+		ENDWHILE
+
+
+
+
+
+
+
+
+
+
+
+
+				main.py python file
+import Customer_fun
+import Staff_Fun
+import SuperUser_Fun
+from SuperUser_Fun import *
+from Customer_fun import *
+from Staff_Fun import *
+
