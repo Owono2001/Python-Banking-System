@@ -1,23 +1,36 @@
 import datetime
 import sys
-
+import os # Needed for rename/remove
+import shutil # More robust file moving/copying
+CUSTOMER_DETAILS_FILE = "customer_details.txt"
+ACCOUNTS_FILE = "accounts.txt" # Use .txt for consistency if desired
 
 # For Getting Customer Login Details from the text file
 def Customer_login_details():
-    file1 = open("customer_details.txt", 'r')  # Open the customer_details.txt file
     account_no = []  # List for saving Account NO
     password = []  # List for saving Password
     try:
-        while True:
-            line = file1.readline()  # Read Line by Line From the Text File
-            if not line:  # End the loop if line has no data
-                break
-            #  Add Values to the List
-            account_no.append(line.strip().split(' ')[4])
-            password.append(line.strip().split(' ')[5])
-        file1.close()
-    except:
-        pass
+        # Use 'with' for automatic file closing
+        with open(CUSTOMER_DETAILS_FILE, 'r') as file1:
+            for line in file1: # Iterate directly over the file object
+                line = line.strip()
+                if not line: # Skip empty lines
+                    continue
+                parts = line.split(' ')
+                # Add checks for expected number of parts
+                if len(parts) >= 6:
+                    account_no.append(parts[4])
+                    password.append(parts[5])
+                else:
+                    print(f"Warning: Skipping malformed line in {CUSTOMER_DETAILS_FILE}: {line}")
+    except FileNotFoundError:
+        print(f"Error: Customer details file '{CUSTOMER_DETAILS_FILE}' not found.")
+        # Depending on requirements, you might want to exit or create the file
+        # sys.exit(1)
+    except Exception as e: # Catch other potential errors during processing
+         print(f"An unexpected error occurred reading {CUSTOMER_DETAILS_FILE}: {e}")
+         # Consider logging the full error for debugging
+
     return account_no, password
 
 
@@ -57,110 +70,204 @@ def Customer_menu(accound_no):
 # Change Password Function
 
 
-def Change_password(accound_no):
-    print(accound_no)
-    Current_password = input("Enter Current Password : ")  # Getting current Passwprd
-    New_password = input("New Password : ")  # Getting New Password
-    Confirm_New_password = input("Confirm New Password : ")  # Conmfroming the entered password
-    Customer_details = []  # List for Customer Detials
-    customer_details = open("customer_details.txt", 'r')  # opening Customer Detials text file
-    while True:
-        line = customer_details.readline()
-        if line.strip().split(' ')[4] == accound_no:
-            # Customer_detials.append(line.strip().split(' '))
-            Customer_details = (line.strip().split(' '))
-            edit_line = line
-            break
-        if not line:
-            break
-    # Checking Current password and conforming the entered password
-    if Current_password == Customer_details[5] and New_password == Confirm_New_password:
-        Edit_Customer_details = ''
-        for x in Customer_details:
-            Edit_Customer_details = Edit_Customer_details + x + ' '
-        file = "customer_details.txt"
-        # Variable for Update Customer details
-        updated_customer_details = Customer_details[0] + ' ' + Customer_details[1] + ' ' + Customer_details[
-            2] + ' ' + Customer_details[3] + ' ' + Customer_details[4] + ' ' + New_password
-        # Updating to Customer Details text file
-        try:
-            with open('customer_details.txt', 'rt') as file:
-                data = file.read()
-                print(data)
-                # Replace the target string
-            data = data.replace(Edit_Customer_details.strip(), updated_customer_details)
-            with open('customer_details.txt', 'wt') as file:
-                file.write(data)
-        except Exception as error:
-            print(error)
-        else:
-            print("Password Succesfully changed !")
-            file.close()
+def Change_password(account_no): # Corrected spelling: account_no
+    print(f"Attempting to change password for account: {account_no}") # Debugging info
+    Current_password = input("Enter Current Password : ")
+    New_password = input("New Password : ")
+    Confirm_New_password = input("Confirm New Password : ")
+
+    if New_password != Confirm_New_password:
+        print("Error: New passwords do not match.")
+        return
+    if not New_password: # Basic check for empty password
+         print("Error: New password cannot be empty.")
+         return
+
+    # Find the current details and password for the user
+    customer_line_to_edit = None
+    original_password = None
+    customer_found = False
+    try:
+        with open(CUSTOMER_DETAILS_FILE, 'r') as infile:
+            for line in infile:
+                parts = line.strip().split(' ')
+                if len(parts) >= 6 and parts[4] == account_no:
+                    customer_line_to_edit = line.strip() # Store the original line
+                    original_password = parts[5]
+                    customer_found = True
+                    break # Found the user, no need to read further
+    except FileNotFoundError:
+        print(f"Error: Customer details file '{CUSTOMER_DETAILS_FILE}' not found.")
+        return
+    except Exception as e:
+        print(f"An error occurred reading customer details: {e}")
+        return
+
+    if not customer_found:
+        print(f"Error: Account {account_no} not found.")
+        return
+
+    # Check if the entered current password matches the stored one
+    if Current_password != original_password:
+        print("Error: Current password incorrect.")
+        return
+
+    # Prepare the updated line
+    parts = customer_line_to_edit.split(' ')
+    parts[5] = New_password # Update the password part
+    updated_line = ' '.join(parts)
+
+    # Update the file using a temporary file
+    temp_file_path = CUSTOMER_DETAILS_FILE + ".tmp"
+    try:
+        with open(CUSTOMER_DETAILS_FILE, 'r') as infile, open(temp_file_path, 'w') as outfile:
+            for line in infile:
+                stripped_line = line.strip()
+                if stripped_line == customer_line_to_edit:
+                    outfile.write(updated_line + '\n') # Write the modified line
+                    print("Password line identified and updated in temp file.") # Debug
+                else:
+                    outfile.write(line) # Write other lines unchanged
+
+        # Replace the original file with the temporary file
+        # This is safer than os.rename on some systems/situations
+        shutil.move(temp_file_path, CUSTOMER_DETAILS_FILE)
+        print("Password Successfully changed!")
+
+    except Exception as error:
+        print(f"An error occurred while updating the password file: {error}")
+        # Attempt to clean up the temp file if it exists
+        if os.path.exists(temp_file_path):
+            try:
+                os.remove(temp_file_path)
+            except OSError as e:
+                print(f"Error cleaning up temporary file {temp_file_path}: {e}")
 
 
 # Deposit Function
-def Deposit(accound_no):
+def Deposit(account_no): # Corrected spelling: account_no
     Date = datetime.date.today()
-    deposit = input("Enter Amount : ")  # Getting Deposit Amount
-    withdrawals = '0'
-    accounts = open("accounts", 'a')  # Opening accounts.txt
-    accounts.write(accound_no + ' ' + str(Date) + ' ' + deposit + ' ' + withdrawals + '\n')  # Saving to accounts.txt
-    accounts.close()
+    deposit_amount_str = input("Enter Amount : ") # Get amount as string first
+    try:
+        deposit_amount = int(deposit_amount_str) # Try converting to integer
+        if deposit_amount <= 0:
+            print("Error: Deposit amount must be positive.")
+            return # Exit function if invalid amount
+
+        withdrawals = '0'
+        # Use 'with' for automatic closing
+        with open(ACCOUNTS_FILE, 'a') as accounts:
+            accounts.write(f"{account_no} {Date} {deposit_amount} {withdrawals}\n") # Use f-string for clarity
+        print("Deposit Successful.")
+
+    except ValueError:
+        print("Error: Invalid amount entered. Please enter numbers only.")
+    except FileNotFoundError:
+        print(f"Error: Accounts file '{ACCOUNTS_FILE}' not found.")
+    except Exception as e:
+        print(f"An unexpected error occurred during deposit: {e}")
 
 
 # Withdrawals Function
-def Withdrawals(accound_no):
+def Withdrawals(account_no): # Corrected spelling: account_no
     Date = datetime.date.today()
     deposit = '0'
-    withdrawals = input("Enter Amount : ")
-    Total_balance = Balance(accound_no)
-    customer_details = open("customer_details.txt", 'r')
-    while True:
-        line = customer_details.readline()
-        if not line:
-            break
-        if line.strip().split(' ')[4] == accound_no:
-            # Customer_details.append(line.strip().split(' '))
-            Customer_details = (line.strip().split(' '))
-            break
-    print(Customer_details)
-    # Checking Saving Or Current Account
-    if Customer_details[3] == '1':  # 1-Savings / 2-Current    RM100 and RM500
-        # Checking the Minimum balance
-        if (Total_balance - int(withdrawals)) >= 100:
-            accounts = open("accounts", 'a')
-            accounts.write(
-                accound_no + ' ' + str(Date) + ' ' + deposit + ' ' + withdrawals + '\n')  # Saving to accounts.txt
-            accounts.close()
-            print("Transaction Successful")
+    withdrawal_amount_str = input("Enter Amount : ")
+
+    try:
+        withdrawal_amount = int(withdrawal_amount_str)
+        if withdrawal_amount <= 0:
+            print("Error: Withdrawal amount must be positive.")
+            return
+
+        # Get current balance *before* checking minimums
+        current_balance = Balance(account_no)
+        if current_balance is None: # Handle case where balance check failed
+             print("Error: Could not retrieve current balance.")
+             return
+
+        # Find customer details to check account type
+        customer_details_list = None
+        try:
+            with open(CUSTOMER_DETAILS_FILE, 'r') as customer_details_file:
+                for line in customer_details_file:
+                    parts = line.strip().split(' ')
+                    if len(parts) >= 5 and parts[4] == account_no:
+                        customer_details_list = parts
+                        break
+        except FileNotFoundError:
+            print(f"Error: Customer details file '{CUSTOMER_DETAILS_FILE}' not found.")
+            return
+        except Exception as e:
+             print(f"An error occurred reading customer details: {e}")
+             return
+
+        if customer_details_list is None:
+            print(f"Error: Customer account {account_no} not found.")
+            return
+
+        # print(customer_details_list) # Keep for debugging if needed
+
+        account_type = customer_details_list[3] # 1-Savings / 2-Current
+        min_balance = 0
+        if account_type == '1': # Savings
+            min_balance = 100
+        elif account_type == '2': # Current
+            min_balance = 500
         else:
-            print("Transaction Error : Minimum balance !")
-    elif Customer_details[3] == '2':  # 1-Savings / 2-Current    RM100 and RM500
-        # Checking the Minimum balance
-        if (Total_balance - int(withdrawals)) >= 500:
-            accounts = open("accounts", 'a')
-            accounts.write(
-                accound_no + ' ' + str(Date) + ' ' + deposit + ' ' + withdrawals + '\n')  # Saving to accounts.txt
-            accounts.close()
-            print("Transaction Successful")
+            print(f"Warning: Unknown account type '{account_type}' for account {account_no}.")
+            # Decide how to handle unknown types - maybe default to a high min balance or disallow?
+            # For now, let's assume it's an error state or needs a default.
+            min_balance = float('inf') # Effectively disallows withdrawal if type is wrong
+
+        # Check if withdrawal respects minimum balance
+        if (current_balance - withdrawal_amount) >= min_balance:
+            try:
+                with open(ACCOUNTS_FILE, 'a') as accounts:
+                    accounts.write(f"{account_no} {Date} {deposit} {withdrawal_amount}\n")
+                print("Transaction Successful")
+            except FileNotFoundError:
+                 print(f"Error: Accounts file '{ACCOUNTS_FILE}' not found during write.")
+            except Exception as e:
+                 print(f"An unexpected error occurred writing withdrawal: {e}")
         else:
-            print("Transaction Error : Minimum balance !")
-    else:
-        pass
+            print(f"Transaction Error: Withdrawal would bring balance below minimum RM{min_balance}. Current Balance: RM{current_balance}")
+
+    except ValueError:
+        print("Error: Invalid amount entered. Please enter numbers only.")
+    except Exception as e: # Catch unexpected errors during the process
+        print(f"An unexpected error occurred during withdrawal: {e}")
 
 
 # Balance Checking Function
-def Balance(accound_no):
-    Total_Balance = 0  # Variable for store total balance
-    accounts = open("accounts", 'r')
-    while True:
-        line = accounts.readline()
-        if not line:
-            break
-        if line.strip().split(' ')[0] == accound_no:
-            Total_Balance = Total_Balance + int(line.strip().split(' ')[2])
-            Total_Balance = Total_Balance - int(line.strip().split(' ')[3])
-    return Total_Balance  # Returning the Calculated balance
+def Balance(account_no): # Corrected spelling: account_no
+    Total_Balance = 0
+    try:
+        with open(ACCOUNTS_FILE, 'r') as accounts:
+            for line in accounts:
+                line = line.strip()
+                if not line:
+                    continue
+                parts = line.split(' ')
+                # Basic validation of line format
+                if len(parts) == 4 and parts[0] == account_no:
+                    try:
+                        deposit = int(parts[2])
+                        withdrawal = int(parts[3])
+                        Total_Balance += deposit
+                        Total_Balance -= withdrawal
+                    except ValueError:
+                        print(f"Warning: Skipping line with non-numeric amount in {ACCOUNTS_FILE}: {line}")
+                        continue # Skip this line if amounts aren't numbers
+                elif len(parts) != 4 and parts[0] == account_no:
+                     print(f"Warning: Skipping malformed line for account {account_no} in {ACCOUNTS_FILE}: {line}")
+        return Total_Balance
+    except FileNotFoundError:
+        print(f"Error: Accounts file '{ACCOUNTS_FILE}' not found.")
+        return None # Indicate error by returning None
+    except Exception as e:
+        print(f"An unexpected error occurred calculating balance: {e}")
+        return None # Indicate error by returning None
 
 
 # Report generating function
